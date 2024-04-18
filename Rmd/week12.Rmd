@@ -42,7 +42,7 @@ write_csv(week12_tbl, "../data/week12_tbl.csv")
 week12_tbl <- read_csv("../data/week12_tbl.csv")
 ```
 
-This chunk is responsible for text formation. 
+This chunk is for text formation. 
 ```{r corpus, message=FALSE}
 # Importing the original corpus from week12_tbl$title
 io_corpus_original <- VCorpus(VectorSource(week12_tbl$title))
@@ -69,6 +69,7 @@ compare_them <- function(corpus1, corpus2) {
 compare_them(io_corpus_original, io_corpus)
 ```
 
+This chunk is for creating DTM and slim DTM.
 ```{r dtm, message=FALSE}
 # Create a custom tokenizer function using NGramTokenizer with n-gram range 1:2
 myTokenizer <- function(x) {NGramTokenizer(x, Weka_control(min=1, max=2))}
