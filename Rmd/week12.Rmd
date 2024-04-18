@@ -16,6 +16,7 @@ library(RedditExtractoR)
 library(tm)
 library(textstem)
 library(qdap)
+library(ldatuning)
 ```
 
 # **Data Import and Cleaning**
@@ -79,6 +80,37 @@ io_dtm <- DocumentTermMatrix(io_corpus, control = list(tokenize = myTokenizer))
 
 # Create a version of the DTM with sparse terms eliminated
 # The sparse terms are those that appear in less than 0.3% (1 - 0.997) of the documents
-io_slim_dtm = removeSparseTerms(io_dtm, sparse = 0.997) 
+io_slim_dtm <- removeSparseTerms(io_dtm, sparse = 0.997)
 ```
 
+# **Analysis**
+This chunk is to determine number of topics to extract
+```{r Topic modeling, message=FALSE}
+library(topicmodels)
+library(parallel)
+library(doParallel)
+local_cluster <- makeCluster(7)
+registerDoParallel(local_cluster)
+
+# Use FindTopicsNumber to tune the number of topics
+DTM_tune <- FindTopicsNumber(
+  io_dtm,
+  topics = seq(2, 10, 1),
+  metrics = c("Griffiths2004", "CaoJuan2009", "Arun2010", "Deveaud2014"),
+  verbose = TRUE
+)
+```
+
+Make a pretty word cloud
+```{r cloud, message=FALSE}
+library(wordcloud)
+
+
+
+DTM_tbl <- io_dtm %>% as.matrix %>% as_tibble
+wordcloud(
+  words = names(DTM_tbl),
+  freq = colSums(DTM_tbl),
+  colors = brewer.pal(9,"YlOrBr")
+)
+```
