@@ -8,10 +8,30 @@ output:
 ---
 
 # **Script Settings and Resources**
-This chunk is for script setting and loading packages
+This chunk is for script setting and loading packages.
 ```{r setup, message=FALSE}
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 library(tidyverse)
-install.packages("tm")
+library(RedditExtractoR)
 library(tm)
+```
+
+# **Data Import and Cleaning**
+This chunk is responsible for importing and cleaning data from Reddit. 
+```{r data import, message=FALSE}
+reddit_url <- find_thread_urls(
+  subreddit = "IOPsychology",
+  period = "year"
+)
+# Getting content of threads using retrieved URLs
+reddit_data <- get_thread_content(reddit_url$url)
+# Extracting titles and upvotes 
+reddit_title <- reddit_data$thread$title
+reddit_upvotes <- reddit_data$thread$upvotes
+# Creating a tibble from the extracted data
+week12_tbl <- tibble(reddit_title, reddit_upvotes)
+# Writing the tibble to a CSV file in the "data" directory
+write_csv(week12_tbl, "../data/week_tbl.csv")
+# Loading the data from the saved CSV file into a new variable
+week12_tbl <- read_csv("../data/week_tbl.csv")
 ```
