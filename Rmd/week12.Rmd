@@ -14,9 +14,6 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 library(tidyverse)
 library(RedditExtractoR)
 library(tm)
-
-install.packages("rJava")
-
 library(textstem)
 library(qdap)
 ```
@@ -70,3 +67,9 @@ compare_them <- function(corpus1, corpus2) {
 # Example usage to compare preprocessed and original corpora
 compare_them(io_corpus_original, io_corpus)
 ```
+
+```{r dtm, message=FALSE}
+myTokenizer <- function(x) {NGramTokenizer(x, Weka_control(min=1, max=2))}
+io_dtm <- DocumentTermMatrix(io_corpus, control = list(tokenize = myTokenizer))
+```
+
