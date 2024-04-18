@@ -14,24 +14,59 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 library(tidyverse)
 library(RedditExtractoR)
 library(tm)
+
+install.packages("rJava")
+
+library(textstem)
+library(qdap)
 ```
 
 # **Data Import and Cleaning**
 This chunk is responsible for importing and cleaning data from Reddit. 
 ```{r data import, message=FALSE}
-reddit_url <- find_thread_urls(
-  subreddit = "IOPsychology",
-  period = "year"
-)
-# Getting content of threads using retrieved URLs
-reddit_data <- get_thread_content(reddit_url$url)
-# Extracting titles and upvotes 
-reddit_title <- reddit_data$thread$title
-reddit_upvotes <- reddit_data$thread$upvotes
-# Creating a tibble from the extracted data
-week12_tbl <- tibble(reddit_title, reddit_upvotes)
-# Writing the tibble to a CSV file in the "data" directory
-write_csv(week12_tbl, "../data/week_tbl.csv")
+# reddit_url <- find_thread_urls(
+#  subreddit = "IOPsychology",
+#  period = "year")
+
+## Getting content of threads using retrieved URLs
+# reddit_data <- get_thread_content(reddit_url$url)
+
+## Extracting titles and upvotes 
+title <- reddit_data$thread$title
+upvotes <- reddit_data$thread$upvotes
+
+## Creating a tibble from the extracted data
+week12_tbl <- tibble(title, upvotes)
+
+## Writing the tibble to a CSV file in the "data" directory
+write_csv(week12_tbl, "../data/week12_tbl.csv")
+
 # Loading the data from the saved CSV file into a new variable
-week12_tbl <- read_csv("../data/week_tbl.csv")
+week12_tbl <- read_csv("../data/week12_tbl.csv")
+```
+
+This chunk is responsible for text formation. 
+```{r corpus, message=FALSE}
+# Importing the original corpus from week12_tbl$title
+io_corpus_original <- VCorpus(VectorSource(week12_tbl$title))
+
+# Preprocessing the original corpus using various text transformations
+io_corpus <- io_corpus_original %>%
+  tm_map(content_transformer(replace_abbreviation)) %>%
+  tm_map(content_transformer(replace_contraction)) %>%
+  tm_map(content_transformer(str_to_lower)) %>%
+  tm_map(removeNumbers) %>%
+  tm_map(removePunctuation) %>%
+  tm_map(removeWords, stopwords("en")) %>%
+  tm_map(stripWhitespace) %>%
+  tm_map(content_transformer(lemmatize_words))
+
+# Function to compare randomly selected rows from two corpus
+compare_them <- function(corpus1, corpus2) {
+  index <- sample(1:length(corpus1),1)
+  origianl <- print(corpus1[[index]]$content)
+  new <- print(corpus2[[index]]$content)
+}
+# Example usage to compare preprocessed and original corpora
+compare_them(io_corpus_original, io_corpus)
 ```
