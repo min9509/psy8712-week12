@@ -114,6 +114,42 @@ stopCluster(local_cluster)
 registerDoSEQ()
 ```
 
+This chuck is to create topic_tbl by using beta and gamma.
+```{r lda, message=FALSE}
+io_lda <- LDA(io_dtm, 5)
+
+# Create a beta matrix
+lda_b <- tidy(io_lda, matrix = "beta") %>%
+  group_by(topic) %>%
+  top_n(10, beta) %>%
+  arrange(topic, -beta)
+
+summary(lda_b)
+
+# Create a gamma matrix
+lda_g <- tidy(io_lda, matrix = "gamma") %>%
+  group_by(document) %>%
+  top_n(1, gamma) %>%
+  slice(1) %>%
+  mutate(document = as.numeric(document)) %>%
+  arrange(document)
+
+# Create the topic_tbl
+week12_tbl_a <- week12_tbl %>%
+  mutate(doc_id = as.character(1:nrow(week12_tbl)))
+
+topic_tbl <- tibble(doc_id = Docs(io_dtm)) %>%
+  left_join(y = week12_tbl_a, by = join_by(doc_id)) %>%
+  mutate(topic = lda_g$topic, probability = lda_g$gamma)
+
+# double-check to answer questions
+topic_tbl
+show(lda_b)
+show(lda_g)
+```
+
+
+
 This chunk is to make a pretty word cloud.
 ```{r cloud, message=FALSE}
 library(wordcloud)
