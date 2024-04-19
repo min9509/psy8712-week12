@@ -99,9 +99,6 @@ io_slim_dtm <- removeSparseTerms(io_dtm, sparse = 0.997)
 # **Analysis**
 This chunk is to determine number of topics to extract.
 ```{r Topic modeling, message=FALSE}
-library(topicmodels)
-library(parallel)
-library(doParallel)
 local_cluster <- makeCluster(7)
 registerDoParallel(local_cluster)
 
@@ -112,6 +109,9 @@ DTM_tune <- FindTopicsNumber(
   metrics = c("Griffiths2004", "CaoJuan2009", "Arun2010", "Deveaud2014"),
   verbose = TRUE
 )
+
+stopCluster(local_cluster)
+registerDoSEQ()
 ```
 
 This chunk is to make a pretty word cloud.
