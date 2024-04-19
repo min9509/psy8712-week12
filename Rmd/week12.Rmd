@@ -164,10 +164,10 @@ Topic 4: Partially Match - highest document 535 (a Master's in I/O Psychology) a
 Topic 5: Partially Match - highest document 485 (Job analysis question for practitioners) and lowest document 295 (Organizational Psychologist graduated from Dutch university)
 
 ```{r table, message=FALSE}
+# Create the final table and conduct analysis
 final_tbl <- left_join(topic_tbl, week12_tbl_a, by = "doc_id") %>%
   mutate(topic = as.factor(topic))
-final_tbl
-
+final_tbls
 summary(aov(upvotes.x ~ topic, data = final_tbl))
 # I conducted ANOVA test to prove that there are significant differences in upvotes by topics. However, the p-vale is .051, which means there are no differences.
 ```
