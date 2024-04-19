@@ -148,6 +148,20 @@ show(lda_b)
 show(lda_g)
 ```
 
+# **Answer**
+# Question 1
+Topic 1: I have chose the topic about program and performance assessment because assessment, program, management, jobs show the high beta value in the topic 1. 
+Topic 2: I have chose the topic about career development because work, advice, career show the high beta value in the topic 2. 
+Topic 3: I have chose the biweekly discussion effectiveness because discussion, biweekly, riopsychology show the ## high beta value in the topic 3. 
+Topic 4: I have chose the importance of advice because job, masters, advice show the high beta value in the topic 4.
+Topic 5: I have chose recommendations for graduate students from psychology department because recommendations, psy, graduate  show the high beta value in the topic 5.
+
+# Question 2
+Topic 1: Partially match - highest document 104 (studying organizational psy) and lowest document 247 (team need assessment)
+Topic 2: Match - highest document 133 (pursuing the same job) and lowest document 411 (Social psychology PhD)
+Topic 3: Not match - highest document 384 (Career Advice) and lowest document 433 (understanding the career path)
+Topic 4: Partially Match - highest document 535 (a Master's in I/O Psychology) and lowest document 17 (you advice is a fair cost for a project)
+Topic 5: Partially Match - highest document 485 (Job analysis question for practitioners) and lowest document 295 (Organizational Psychologist graduated from Dutch university)
 
 
 This chunk is to make a pretty word cloud.
