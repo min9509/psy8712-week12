@@ -12,11 +12,17 @@ This chunk is for script setting and loading packages.
 ```{r setup, message=FALSE}
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 library(tidyverse)
+library(tidytext)
 library(RedditExtractoR)
 library(tm)
 library(textstem)
 library(qdap)
 library(ldatuning)
+library(RWeka)
+library(topicmodels)
+library(parallel)
+library(doParallel)
+library(wordcloud)
 ```
 
 # **Data Import and Cleaning**
@@ -30,14 +36,14 @@ This chunk is responsible for importing and cleaning data from Reddit.
 # reddit_data <- get_thread_content(reddit_url$url)
 
 ## Extracting titles and upvotes 
-title <- reddit_data$thread$title
-upvotes <- reddit_data$thread$upvotes
+# title <- reddit_data$thread$title
+# upvotes <- reddit_data$thread$upvotes
 
 ## Creating a tibble from the extracted data
-week12_tbl <- tibble(title, upvotes)
+# week12_tbl <- tibble(title, upvotes)
 
 ## Writing the tibble to a CSV file in the "data" directory
-write_csv(week12_tbl, "../data/week12_tbl.csv")
+# write_csv(week12_tbl, "../data/week12_tbl.csv")
 
 # Loading the data from the saved CSV file into a new variable
 week12_tbl <- read_csv("../data/week12_tbl.csv")
@@ -59,6 +65,11 @@ io_corpus <- io_corpus_original %>%
   tm_map(stripWhitespace) %>%
   tm_map(content_transformer(lemmatize_words))
 
+# Remove the zero context
+io_corpus <- io_corpus %>%
+  tm_filter(FUN = function(x) { return(nchar(stripWhitespace(x$content)[[1]]) > 0) })
+
+
 # Function to compare randomly selected rows from two corpus
 compare_them <- function(corpus1, corpus2) {
   index <- sample(1:length(corpus1),1)
@@ -76,7 +87,9 @@ This chunk is for creating DTM and slim DTM.
 myTokenizer <- function(x) {NGramTokenizer(x, Weka_control(min=1, max=2))}
 
 # Create a DTM using the custom tokenizer function
-io_dtm <- DocumentTermMatrix(io_corpus, control = list(tokenize = myTokenizer))
+io_dtm_zero <- DocumentTermMatrix(io_corpus, control = list(tokenize = myTokenizer))
+zero_count <- apply(io_dtm_zero, 1, sum)
+io_dtm <- io_dtm_zero[zero_count > 0, ]
 
 # Create a version of the DTM with sparse terms eliminated
 # The sparse terms are those that appear in less than 0.3% (1 - 0.997) of the documents
@@ -84,7 +97,7 @@ io_slim_dtm <- removeSparseTerms(io_dtm, sparse = 0.997)
 ```
 
 # **Analysis**
-This chunk is to determine number of topics to extract
+This chunk is to determine number of topics to extract.
 ```{r Topic modeling, message=FALSE}
 library(topicmodels)
 library(parallel)
@@ -101,12 +114,9 @@ DTM_tune <- FindTopicsNumber(
 )
 ```
 
-Make a pretty word cloud
+This chunk is to make a pretty word cloud.
 ```{r cloud, message=FALSE}
 library(wordcloud)
-
-
-
 DTM_tbl <- io_dtm %>% as.matrix %>% as_tibble
 wordcloud(
   words = names(DTM_tbl),
